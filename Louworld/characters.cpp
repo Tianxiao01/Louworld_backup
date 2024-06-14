@@ -2,25 +2,30 @@
 
 //initialization 
 
-void Characters::initidletextures(const std::string& idol)
+void Characters::initidletextures(const std::string idle,std::string SecondImg="None")
 {
-	if (!this->idleTexture.loadFromFile(idol))
+	if (!this->idleTexture.loadFromFile(idle))
 	{
 		std::cout << "idoltextures loading failed" << "\n";
 	}
+	if (SecondImg!="None")
+		if (!this->idleTexture.loadFromFile(SecondImg))
+		{
+			std::cout << "idoltextures loading failed" << "\n";
+		}
 }
 
-void Characters::initslashtextures(const std::string& slash)
+void Characters::initslashtextures(const std::string slash)
 {
 	this->slashtextures.loadFromFile(slash);
 }
 
-void Characters::initwalktextures(const std::string& walk)
+void Characters::initwalktextures(const std::string walk)
 {
 	this->walktextures.loadFromFile(walk);
 }
 
-void Characters::inithurttextures(const std::string& hurt)
+void Characters::inithurttextures(const std::string hurt)
 {
 	this->hurttextures.loadFromFile(hurt);
 }
@@ -31,7 +36,7 @@ void Characters::inithurttextures(const std::string& hurt)
 Characters::Characters(int initHP, int initstamina, int initDamage,
 								   const std::string& idol, const std::string& slash, 
 								   const std::string& walk, const std::string& hurt, 
-								   int initteam,int inittype)
+								   int initteam,int inittype,std::string name)
 {
 	this->HP=initHP;
 	this->MaxHP = initHP;
@@ -40,6 +45,7 @@ Characters::Characters(int initHP, int initstamina, int initDamage,
 	this->team = initteam;
 	this->type = inittype;
 	this->alive = true;
+	this->name = name;
 	this->initidletextures(idol);
 	this->initslashtextures(slash);
 	this->initwalktextures(walk);
@@ -86,6 +92,11 @@ int Characters::readstamina()
 int Characters::readDamage()
 {
 	return this->Damage;
+}
+
+std::string Characters::readName()
+{
+	return this->name;
 }
 
 sf::Sprite Characters::getappearance()
@@ -500,6 +511,10 @@ void Characters::hurt(int damage)
 		this->hurtframe = 1;
 		this->ChosenAsTarget = false;
 		this->hurtCounter = 1;
+		if (this->HP <= 0)
+		{
+			this->appearance.setPosition(2000, 2000); //"disappear"
+		}
 	}
 }
 

@@ -14,7 +14,7 @@ void Map::initTerrainSprites()
 	for (int i = 1;i <= 169;i++)
 	{
 		this->TerrainsArray[i - 1] = sf::Sprite();
-		this->TerrainsArray[i - 1].setTexture(this->mapimage);;
+		this->TerrainsArray[i - 1].setTexture(this->mapimage);
 	}
 
 	for (int i = 0;i < 13;i++)
@@ -45,5 +45,12 @@ Map::~Map()
 
 }
 
+sf::Texture& Map::getMapTexture()
+{
+	// TODO: insert return statement here
+	return this->mapimage;
+}
+
 //accessaries
 
+	

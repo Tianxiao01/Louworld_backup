@@ -67,8 +67,6 @@ void UImenue::set_up_characters_information()
 	this->HP_number.setFillColor(sf::Color::Black);
 	this->HP_number.setPosition(995, 312);
 	this->HP_number.setCharacterSize(12);
-
-
 }
 
 void UImenue::set_up_terrains_informaiton()
@@ -81,10 +79,10 @@ void UImenue::init_shared_elements()
 	this->set_up_imageRect();
 
 	this->description.setFont(this->font1);
-	this->description.setString("///////////////");
+	this->description.setString("//////////////////"); // 18 charaacters for each line
 	this->description.setFillColor(sf::Color::Black);
-	this->description.setPosition(880, 380);
-	this->description.setCharacterSize(12);
+	this->description.setPosition(850, 380);
+	this->description.setCharacterSize(13);
 }
 
 

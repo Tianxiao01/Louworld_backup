@@ -1,5 +1,6 @@
 ﻿#include "Game.h"
 #include "Pathfinding.h"
+#include <cmath>
 
 
 //initialization
@@ -8,7 +9,7 @@ void Game::initVariables()
     this->window = nullptr;
     this->swordman = nullptr;
     this->knight = nullptr;
-    this->shellman = nullptr;
+    this->shieldman = nullptr;
     this->orc_axe = nullptr;
 }
 
@@ -21,11 +22,11 @@ void Game::initplayercharacters()
     for (int i = 1;i <= 14;i++)
     {
     
-    this->swordman = new Characters(10, 1, 2, "textures/characters/swordman01/swordman01_idle.png",
+    this->swordman = new Characters(10, 5, 2, "textures/characters/swordman01/swordman01_idle.png",
                                             "textures/characters/swordman01/swordman01_slash.png",
                                             "textures/characters/swordman01/swordman01_walk.png",
                                             "textures/characters/swordman01/swordman01_hurt.png",
-                                            1, 1);
+                                            1, 1,"swordman");
     this->playablecharacters.push_back(swordman);
     this->Allcharacters.push_back(swordman);
     this->swordmanpointers.push_back(swordman);
@@ -33,36 +34,41 @@ void Game::initplayercharacters()
   
     
 
-    this->knight = new Characters(15, 1, 5, "textures/characters/knight02/knight02_idle.png",
+    this->knight = new Characters(15, 4, 5, "textures/characters/knight02/knight02_idle.png",
                                         "textures/characters/knight02/knight02_slash.png",
                                         "textures/characters/knight02/knight02_walk.png",
                                         "textures/characters/knight02/knight02_hurt.png",
-                                        1, 1);
+                                        1, 1,"knight");
     
     this->playablecharacters.push_back(knight);
     this->Allcharacters.push_back(knight);
 
     
-    this->shellman = new Characters(10, 1, 1,"textures/characters/shellman01/shellman01_idle.png",
+    this->shieldman = new Characters(12, 5, 1,"textures/characters/shellman01/shellman01_idle.png",
                                         "textures/characters/shellman01/shellman01_slash.png",
                                         "textures/characters/shellman01/shellman01_walk.png",
                                         "textures/characters/shellman01/shellman01_hurt.png",
-                                        1, 1);
+                                        1, 1,"shieldman");
 
-    this->playablecharacters.push_back(shellman);
-    this->Allcharacters.push_back(shellman);
+    this->playablecharacters.push_back(shieldman);
+    this->Allcharacters.push_back(shieldman);
     
 
     //AI
 
-    this->orc_axe = new Characters(10,1,2, "textures/characters/orc_axe01/orc_axe01_idle.png",
-                                            "textures/characters/orc_axe01/orc_axe01_slash.png",
-                                            "textures/characters/orc_axe01/orc_axe01_walk.png",
-                                            "textures/characters/orc_axe01/orc_axe01_hurt.png",
-                                            2, 2);
+    for (int i = 1;i <= 20;i++)
+    {
+        this->orc_axe = new Characters(10, 6, 2, "textures/characters/orc_axe01/orc_axe01_idle.png",
+            "textures/characters/orc_axe01/orc_axe01_slash.png",
+            "textures/characters/orc_axe01/orc_axe01_walk.png",
+            "textures/characters/orc_axe01/orc_axe01_hurt.png",
+            2, 2, "axe orc");
 
-    this->AIcharacters.push_back(orc_axe);
-    this->Allcharacters.push_back(orc_axe);
+        this->AIcharacters.push_back(orc_axe);
+        this->Allcharacters.push_back(orc_axe);
+        this->orc_axepointers.push_back(orc_axe);
+    }
+
     
 }
 
@@ -102,12 +108,29 @@ Game::~Game()
     
     for (Characters* swordman : swordmanpointers)
     {
-        delete this->swordman;
+        if (swordman)
+        {
+            delete swordman;
+        } 
+    }
+    if (this->knight)
+    {
+        delete this->knight;
     }
     
-    delete this->knight;
-    delete this->shellman;
-    delete this->orc_axe;
+    if (this->shieldman)
+    {
+        delete this->shieldman;
+    }
+    
+    for (Characters* orc_axe : swordmanpointers)
+    {
+        if (orc_axe)
+        {
+            delete orc_axe;
+        }
+    }
+    
     delete this->map;
     delete this->UiMenue;
     delete this->character_On;
@@ -169,28 +192,26 @@ void Game::checkTerrainstate()
         terrainnum++;
         if (this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] != 999)
         {
+            int init_state = this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13];
             bool TerrainChecked = false; // the bool is to make sure the terrain with characters on it don't change back to 0 after being chcked onece
             for (Characters* character : this->Allcharacters)
             {
                 if (round(terrain.getPosition().x + 32) == round(character->getappearance().getPosition().x)
                     && round(terrain.getPosition().y + 32) == round(character->getappearance().getPosition().y))
                 {
-                    if (character->getTeam() == 1)
+                    if (this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] <100)
                     {
-                        this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] = 100;  //this->map->Terrainstate[][]=100
-                        TerrainChecked = true;
-                        //std::cout << this->TerrainsState[0][0] << "\n";
+                        this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] += 100;
                     }
-                    else if (character->getTeam() == 2)
-                    {
-                        this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] = 200;
-                        TerrainChecked = true;
-                        //std::cout << this->TerrainsState[12][12] << "\n";
-                    }
+                    TerrainChecked = true; // somehting is on the block
+                    //std::cout << this->TerrainsState[0][1] << "\n";
+                    //std::cout << this->TerrainsState[12][12] << "\n";
                 }
-                else if (TerrainChecked == false)
+                else if (TerrainChecked == false  //nothing is on the block
+                    && this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13]>=100    //only blocks having soemthing on it will subduct when it returns back to empty
+                    && this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] != 999)//wall will not subduct its difficulty value
                 {
-                    this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] = 0;
+                    this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] -=100;
                 }
             }
         }
@@ -200,6 +221,7 @@ void Game::checkTerrainstate()
             this->a_terrain_hoveredOn = true;
             this->coord_of_terrainOn.first = (terrainnum - 1) / 13;
             this->coord_of_terrainOn.second = (terrainnum - 1) % 13;
+            this->TerrainNum = terrainnum;
         }
     }
     //std::cout << this->TerrainsState[0][0] << "\n";
@@ -210,6 +232,7 @@ void Game::checkCharactersState()
     this->GetMouseActivity();
     Characters* character_hoveredOn = nullptr;
     int counter = 0; //how many characters being hovered on
+    int SequenceNum = 0; //which character the iteration is in
     for (Characters* character : Allcharacters)
     {
 
@@ -221,9 +244,12 @@ void Game::checkCharactersState()
                 this->ACharacterischosen = true;
                 this->team_characterChosen = character->getTeam();
                 this->damagePoint_chosenChar = character->readDamage();
+                this->attackerPosition = character->getappearance().getPosition();
+                this->characterStamina = character->readstamina();
                 //std::cout << character->readDamage();
             }
-            else if (this->ButtonClicked == "Right" && this->ACharacterischosen && character->getTeam() != this->team_characterChosen)
+            else if (this->ButtonClicked == "Right" && this->ACharacterischosen && character->getTeam() != this->team_characterChosen
+                && (std::pow(character->getappearance().getPosition().x-this->attackerPosition.x,2)+ std::pow(character->getappearance().getPosition().y - this->attackerPosition.y,2))<=64*64)//this line represents the range requirement
             {
                 character->SetIsChosenAsTarget(true);
                 this->targetPosition = character->getappearance().getPosition();
@@ -233,11 +259,22 @@ void Game::checkCharactersState()
             this->a_character_hoveredOn = true;
             character_hoveredOn = character;
             counter++;
+            SequenceNum++;
         }
         else if (counter==0)
         {
             this->a_character_hoveredOn = false;
         }
+
+        /*
+        //alive or dead
+        if (character->readHP() <= 0)
+        {
+            delete this->Allcharacters[SequenceNum];
+            this->Allcharacters[SequenceNum] = nullptr;
+            this->Allcharacters.erase();
+        }
+        */
     }
     //std::cout << this-> a_character_hoveredOn << "\n";
     //pass the information of character_hoveredOn to global scope
@@ -298,7 +335,7 @@ void Game::drawBorder(sf::RectangleShape& border)
 
 
 //walking distance things
-
+                                                                                                                            
 
 void Game::Construct_path(Characters* character, sf::Vector2i goal)
 {
@@ -338,20 +375,24 @@ void Game::MeasureDistance()
             terrainnum++;
             if (terrain.getGlobalBounds().contains(static_cast<sf::Vector2f>(this->localMousePosition))
                 && ButtonClicked == "Left"
-                && this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] != 100
-                && this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] != 200
+                && this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] < 100
                 && this->TerrainsState[(terrainnum - 1) / 13][(terrainnum - 1) % 13] != 999)
-            {  //&& block number !=999 or 100 or 200
+            {  //&& block number !=999 or <100
+                //std::cout << attackerPosition.x << "\n";
+                //std::cout << attackerPosition.y << "\n";
                 for (Characters* character : Allcharacters) //playablecharacters
                 {
                     if (character->isChosen())
                     {
                         this->Block_clicking_onX = round(terrain.getPosition().x + 32);
                         this->Block_clicking_onY = round(terrain.getPosition().y + 32);
-                        ABlockischosen = true; 
                         if (character->IsWalkingAnimationEnd()) 
                         {
                             this->Construct_path(character, sf::Vector2i(this->Block_clicking_onX, this->Block_clicking_onY));
+                            if (static_cast<int>(character->path.size())-1 <= character->readstamina()) //"-1" is becasue in the return path source is included as a element in the vector
+                            {
+                                ABlockischosen = true;; //only when the destination is within range
+                            }
                         }
                     }
                 }
@@ -518,7 +559,8 @@ void Game::updateAICharacters()
                     if (this->TerrainsState[12 - ((spawnpointFactor_AI - 1) / 13)][12 - ((spawnpointFactor_AI - 1) % 13)] != 999)
                     {
                         character->idleanimation((13 - (spawnpointFactor_AI - 1) % 13) * 64 - 32,
-                            (13 - (spawnpointFactor_AI - 1) / 13) * 64 - 32);
+                            (13 - (spawnpointFactor_AI - 1) / 13) * 64 - 32);//
+                        // 
                         // the parameters is the spawn point of the character
                         isSpawn = true;
                     }
@@ -601,9 +643,24 @@ void Game::updateUImenue()
         
         //std::cout << this->character_On->readHP() << "\n";
         //std::cout << this->character_On->readMaxHP() << "\n";
-        std::cout << static_cast<float>((this->character_On->readHP()) / static_cast<float>(this->character_On->readMaxHP())) << "\n";
+        //std::cout << static_cast<float>((this->character_On->readHP()) / static_cast<float>(this->character_On->readMaxHP())) << "\n";
         //std::cout << (this->character_On->readHP() / this->character_On->readMaxHP()) * 100 << "\n";
         this->UiMenue->HP_rect.setSize(sf::Vector2f(static_cast<float>((this->character_On->readHP()) / static_cast<float>(this->character_On->readMaxHP())) * 100, 12));
+
+        this->UiMenue->description.setString("//////////////////\nName: " + this->character_On->readName()+"\nstamina: "
+                                                + std::to_string(this->character_On->readstamina())+"\nDamage Point: "
+                                                + std::to_string(this->character_On->readDamage()));
+    }
+    else if (a_terrain_hoveredOn)
+    {
+        //std::cout << this->coord_of_terrainOn.first << "\n";
+        //std::cout << this->coord_of_terrainOn.second << "\n";
+        this->UiMenue->imageRect.setTexture(this->map->getMapTexture());
+        this->UiMenue->imageRect.setTextureRect(sf::IntRect(64*this->coord_of_terrainOn.second, 
+                                                            64*this->coord_of_terrainOn.first,64,64));
+
+        this->UiMenue->description.setString("//////////////////\nDifficulty to pass:\n        "+ std::to_string(this->TerrainsState[this->coord_of_terrainOn.first][this->coord_of_terrainOn.second]));
+        //std::cout << this->TerrainsState[this->coord_of_terrainOn.first][this->coord_of_terrainOn.second] << "\n";
     }
 }
 
@@ -611,7 +668,7 @@ void Game::updateUImenue()
 void Game::rendercharacters()
 {
     for (Characters* character : Allcharacters)
-    {
+    {   
         this->window->draw(character->getappearance());
     }
 }
@@ -627,23 +684,23 @@ void Game::rendermap()
 void Game::renderUImenue()
 {
     this->window->draw(this->UiMenue->menue_background_Rect);
-    this->window->draw(this->UiMenue->HP_frame_rect);
-    this->window->draw(this->UiMenue->HP_rect);
-    this->window->draw(this->UiMenue->HP_text);
-    this->window->draw(this->UiMenue->HP_number);
     this->window->draw(this->UiMenue->description);
     this->window->draw(this->UiMenue->imageRect);
-   /*
-    if (the cursor is hovering on a character block)
+
+   
+    if (this->a_character_hoveredOn)  //the cursor is hovering on a character block
     {
-        this->window->draw( the HP, stamina, range, damage etc.
+        this->window->draw(this->UiMenue->HP_frame_rect);
+        this->window->draw(this->UiMenue->HP_rect);
+        this->window->draw(this->UiMenue->HP_text);
+        this->window->draw(this->UiMenue->HP_number);
     }
     
-    else if (the cursor is hovering upon a empty block)
+    else if (this->a_terrain_hoveredOn) //the cursor is hovering upon a empty block
     {
-        this->window->draw( the information about the block. for instance, the type of this block, how difficult it is the pass that
+        
     }
-    */
+    
 }
 
 

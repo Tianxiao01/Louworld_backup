@@ -10,6 +10,7 @@
 #include <string>
 #include <cstdlib>
 
+
 class Map
 {
 private:
@@ -31,6 +32,8 @@ public:
 	virtual ~Map();
 
 	//accessories
+
+	sf::Texture& getMapTexture();
 	
 
 

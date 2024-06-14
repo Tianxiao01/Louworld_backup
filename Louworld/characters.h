@@ -2,6 +2,8 @@
 
 
 #include "map.h"
+#include  <random>
+
 
 
 class Characters
@@ -14,6 +16,8 @@ private:
 	int team;
 	int type;
 	int Damage;
+	int range;
+	std::string name;
 
 	sf::Sprite appearance;
 	sf::Texture walktextures;
@@ -49,10 +53,10 @@ private:
 	int hurtCounter = 1;  //this counter is aimed at making the damage is caused to the target only once
 
 	//initialization 
-	void initidletextures(const std::string& idol);
-	void initslashtextures(const std::string& slash);
-	void initwalktextures(const std::string& walk);
-	void inithurttextures(const std::string& hurt);
+	void initidletextures(const std::string idle, std::string SecondImg);
+	void initslashtextures(const std::string slash);
+	void initwalktextures(const std::string walk);
+	void inithurttextures(const std::string hurt);
 
 public:
 
@@ -66,6 +70,8 @@ public:
 	int readstamina();
 
 	int readDamage();
+
+	std::string readName();
 
 	sf::Sprite getappearance();
 
@@ -104,7 +110,8 @@ public:
 	Characters(int initHP, int initstamina, int initDamage,
 		const std::string& idol, const std::string& slash,
 		const std::string& walk, const std::string& hurt,
-		int initteam, int inittype);
+		int initteam, int inittype, std::string name
+		);
 	virtual ~Characters();
 
 	//animation functions
